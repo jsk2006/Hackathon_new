@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import Carousel1 from "../components/carousel1";
 
 const Home = () => {
@@ -13,6 +14,30 @@ const Home = () => {
 
       <section className="carousel-section">
         <Carousel1 />
+      </section>
+
+      <section className="market-prices-section">
+        <div className="market-prices-card">
+          <h2>📊 Current Market Prices</h2>
+          <p>Stay updated with real-time market prices for all products. Compare prices, track trends, and make informed decisions.</p>
+          <div className="market-features">
+            <div className="feature">
+              <span className="feature-icon">📈</span>
+              <span>Price Trends</span>
+            </div>
+            <div className="feature">
+              <span className="feature-icon">🔍</span>
+              <span>Search & Filter</span>
+            </div>
+            <div className="feature">
+              <span className="feature-icon">📱</span>
+              <span>Grid & Table View</span>
+            </div>
+          </div>
+          <Link to="/market-prices" className="market-prices-btn">
+            View Market Prices →
+          </Link>
+        </div>
       </section>
 
       <section className="features-section">

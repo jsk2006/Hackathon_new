@@ -26,13 +26,16 @@ const Login = () => {
     e.preventDefault();
     setError("");
     
+    console.log("Attempting login with:", formData);
     const result = login(formData.username, formData.password);
+    console.log("Login result:", result);
     
     if (result.success) {
       if (result.needsRole) {
         setShowRoleSelection(true);
       } else {
         // User has only one role, redirect directly
+        console.log("Redirecting to vendor dashboard");
         navigate("/vendor");
       }
     } else {
@@ -41,13 +44,16 @@ const Login = () => {
   };
 
   const handleRoleSelection = (role) => {
+    console.log("Role selected:", role);
     setSelectedRole(role);
     selectRole(role);
     
     // Redirect based on role
     if (role === "vendor") {
+      console.log("Redirecting to vendor dashboard");
       navigate("/vendor");
     } else if (role === "supplier") {
+      console.log("Redirecting to supplier dashboard");
       navigate("/supplier");
     }
   };

@@ -39,6 +39,7 @@ const Navbar = () => {
       <ul className="navbar-links">
         <li><Link to="/">Home</Link></li>
           <li><Link to="/dynamic-price">Products</Link></li>
+          <li><Link to="/market-prices">Market Prices</Link></li>
           <li><Link to="/vendor">Vendor Dashboard</Link></li>
           <li><Link to="/supplier">Supplier Dashboard</Link></li>
       </ul>

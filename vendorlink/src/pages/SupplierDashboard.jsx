@@ -1,24 +1,32 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { products } from "../data/products";
+import { useRawMaterials } from "../context/RawMaterialsContext";
 import "./SupplierDashboard.css";
 
 const SupplierDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [showAddProductModal, setShowAddProductModal] = useState(false);
+  const [selectedRawMaterial, setSelectedRawMaterial] = useState("");
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
     originalPrice: "",
-    category: "vegetables",
-    image: "📦",
     description: "",
     stock: "",
     unit: "kg",
     supplier: "Your Company"
   });
   
-  const { user, logout } = useAuth();
+  const { user, role, logout } = useAuth();
+  const { rawMaterials, addProductToRawMaterial, getRawMaterialOptions, getSupplierProducts } = useRawMaterials();
+
+  // Debug information
+  console.log("SupplierDashboard rendered");
+  console.log("User:", user);
+  console.log("Role:", role);
+
+  // Get available raw materials for dropdown
+  const rawMaterialOptions = getRawMaterialOptions();
 
   // Mock data for supplier dashboard
   const supplierStats = [
@@ -34,43 +42,57 @@ const SupplierDashboard = () => {
     { id: "ORD003", customer: "Vendor C", items: 8, total: "₹2,100", status: "Processing" }
   ];
 
-  const supplierProducts = products.filter(product => 
-    product.supplier === "Your Company" || product.supplier.includes("Fresh")
+  // Get supplier's products from raw materials
+  const supplierProducts = getSupplierProducts(user?.username || "Your Company");
+
+  // Get all products from raw materials for display
+  const allProducts = Object.keys(rawMaterials).flatMap(material => 
+    rawMaterials[material].products.map(product => ({
+      ...product,
+      rawMaterial: material,
+      rawMaterialIcon: rawMaterials[material].icon
+    }))
   );
 
   const handleAddProduct = (e) => {
     e.preventDefault();
     
+    if (!selectedRawMaterial) {
+      alert("Please select a raw material category");
+      return;
+    }
+    
     // Create new product with unique ID
     const productToAdd = {
       ...newProduct,
-      id: Date.now(),
+      id: `${selectedRawMaterial.toLowerCase()}_${Date.now()}`,
       price: parseFloat(newProduct.price),
       originalPrice: parseFloat(newProduct.originalPrice) || parseFloat(newProduct.price),
       stock: parseInt(newProduct.stock),
       popularity: Math.floor(Math.random() * 30) + 70, // Random popularity
-      supplier: user?.username || "Your Company"
+      supplier: user?.username || "Your Company",
+      rawMaterial: selectedRawMaterial,
+      rawMaterialIcon: rawMaterials[selectedRawMaterial].icon
     };
 
-    // Add to products array (in a real app, this would be a global state)
-    products.push(productToAdd);
+    // Add to raw materials using context
+    addProductToRawMaterial(selectedRawMaterial, productToAdd);
     
     // Reset form and close modal
     setNewProduct({
       name: "",
       price: "",
       originalPrice: "",
-      category: "vegetables",
-      image: "📦",
       description: "",
       stock: "",
       unit: "kg",
       supplier: "Your Company"
     });
+    setSelectedRawMaterial("");
     setShowAddProductModal(false);
     
     // Show success message
-    alert("Product added successfully!");
+    alert("Product added successfully! Market prices will update in real-time.");
   };
 
   const handleInputChange = (e) => {
@@ -96,6 +118,17 @@ const SupplierDashboard = () => {
 
   return (
     <div className="supplier-dashboard">
+      {/* Debug info - remove this later */}
+      <div style={{ 
+        background: '#ffeb3b', 
+        padding: '10px', 
+        margin: '10px', 
+        borderRadius: '5px',
+        fontSize: '12px'
+      }}>
+        Debug: User={user?.username || 'None'}, Role={role || 'None'}
+      </div>
+      
       <div className="dashboard-header">
         <h1>Supplier Dashboard</h1>
         <p>Welcome back, {user?.username || "Supplier"}! Manage your products and orders.</p>
@@ -125,6 +158,12 @@ const SupplierDashboard = () => {
           onClick={() => setActiveTab("inventory")}
         >
           Inventory
+        </button>
+        <button
+          className={`tab-btn ${activeTab === "market" ? "active" : ""}`}
+          onClick={() => setActiveTab("market")}
+        >
+          Market Prices
         </button>
       </div>
 
@@ -208,15 +247,18 @@ const SupplierDashboard = () => {
               </button>
             </div>
             <div className="products-grid">
-              {supplierProducts.map((product) => (
+              {allProducts.map((product) => (
                 <div key={product.id} className="product-card">
                   <div className="product-image">
-                    <span className="product-emoji">{product.image}</span>
+                    <span className="product-emoji">{product.rawMaterialIcon || product.image}</span>
                   </div>
                   <div className="product-info">
                     <h3>{product.name}</h3>
                     <p>{product.description}</p>
                     <p className="product-stock">Stock: {product.stock} {product.unit}</p>
+                    {product.rawMaterial && (
+                      <p className="product-category">Category: {product.rawMaterial}</p>
+                    )}
                   </div>
                   <div className="product-pricing">
                     <div className="price-container">
@@ -232,6 +274,48 @@ const SupplierDashboard = () => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "market" && (
+          <div className="market-tab">
+            <div className="tab-header">
+              <h2>Market Price Impact</h2>
+              <p>Your products affect real-time market prices</p>
+            </div>
+            <div className="market-impact-grid">
+              {Object.keys(rawMaterials).map((material) => {
+                const products = rawMaterials[material].products;
+                const totalPrice = products.reduce((sum, product) => sum + product.price, 0);
+                const averagePrice = totalPrice / products.length;
+                const supplierProductsInCategory = products.filter(
+                  p => p.supplier === "Your Company" || p.supplier.includes("Fresh")
+                );
+                
+                return (
+                  <div key={material} className="market-impact-card">
+                    <div className="impact-header">
+                      <span className="material-icon">{rawMaterials[material].icon}</span>
+                      <h3>{material}</h3>
+                    </div>
+                    <div className="impact-stats">
+                      <div className="stat">
+                        <span className="stat-label">Average Price</span>
+                        <span className="stat-value">₹{Math.round(averagePrice)}</span>
+                      </div>
+                      <div className="stat">
+                        <span className="stat-label">Your Products</span>
+                        <span className="stat-value">{supplierProductsInCategory.length}</span>
+                      </div>
+                      <div className="stat">
+                        <span className="stat-label">Total Products</span>
+                        <span className="stat-value">{products.length}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
@@ -276,7 +360,7 @@ const SupplierDashboard = () => {
               {supplierProducts.map((product) => (
                 <div key={product.id} className="inventory-card">
                   <div className="inventory-item">
-                    <span className="product-emoji">{product.image}</span>
+                    <span className="product-emoji">{product.rawMaterialIcon || product.image}</span>
                     <div className="inventory-info">
                       <h4>{product.name}</h4>
                       <p>Current Stock: {product.stock} {product.unit}</p>
@@ -312,6 +396,22 @@ const SupplierDashboard = () => {
               </button>
             </div>
             <form className="modal-form" onSubmit={handleAddProduct}>
+              <div className="form-group">
+                <label>Raw Material Category</label>
+                <select
+                  value={selectedRawMaterial}
+                  onChange={(e) => setSelectedRawMaterial(e.target.value)}
+                  required
+                >
+                  <option value="">Select Raw Material</option>
+                  {rawMaterialOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="form-group">
                 <label>Product Name</label>
                 <input
@@ -351,24 +451,6 @@ const SupplierDashboard = () => {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label>Category</label>
-                  <select
-                    name="category"
-                    value={newProduct.category}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="vegetables">Vegetables</option>
-                    <option value="fruits">Fruits</option>
-                    <option value="grains">Grains</option>
-                    <option value="oils">Oils & Spices</option>
-                    <option value="dairy">Dairy</option>
-                    <option value="bakery">Bakery</option>
-                    <option value="dry-fruits">Dry Fruits</option>
-                    <option value="meat">Meat & Fish</option>
-                  </select>
-                </div>
-                <div className="form-group">
                   <label>Stock</label>
                   <input
                     type="number"
@@ -378,6 +460,20 @@ const SupplierDashboard = () => {
                     min="0"
                     required
                   />
+                </div>
+                <div className="form-group">
+                  <label>Unit</label>
+                  <select
+                    name="unit"
+                    value={newProduct.unit}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="kg">kg</option>
+                    <option value="liter">liter</option>
+                    <option value="dozen">dozen</option>
+                    <option value="pack">pack</option>
+                  </select>
                 </div>
               </div>
 

@@ -2,6 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { RawMaterialsProvider } from "./context/RawMaterialsContext";
 import Navbar from "./components/navbar";
 import Footer from "./components/footer";
 import Home from "./pages/Home";
@@ -11,19 +12,25 @@ import SupplierDashboard from "./pages/SupplierDashboard";
 import DynamicPricePage from "./pages/DynamicPricePage";
 import CartPage from "./pages/CartPage";
 import OrderTracking from "./pages/OrderTracking";
+import MarketPrices from "./pages/MarketPrices";
 
 // Protected Route Component
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, role } = useAuth();
   
+  console.log("ProtectedRoute - User:", user, "Role:", role, "Allowed roles:", allowedRoles);
+  
   if (!user) {
+    console.log("No user, redirecting to login");
     return <Navigate to="/login" replace />;
   }
   
   if (allowedRoles && !allowedRoles.includes(role)) {
+    console.log("User role not allowed, redirecting to home");
     return <Navigate to="/" replace />;
   }
   
+  console.log("Access granted to protected route");
   return children;
 };
 
@@ -34,8 +41,8 @@ function AppContent() {
   const isLoginPage = window.location.pathname === "/login";
   const isDashboardPage = window.location.pathname === "/vendor" || window.location.pathname === "/supplier";
   
-  // Only show navbar on homepage
-  const showNavbar = isHomePage;
+  // Show navbar on all pages except login
+  const showNavbar = !isLoginPage;
   const showFooter = isHomePage;
 
   return (
@@ -50,13 +57,12 @@ function AppContent() {
           </ProtectedRoute>
         } />
         <Route path="/supplier" element={
-          <ProtectedRoute allowedRoles={['supplier']}>
-            <SupplierDashboard />
-          </ProtectedRoute>
+          <SupplierDashboard />
         } />
         <Route path="/dynamic-price" element={<DynamicPricePage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/track-orders" element={<OrderTracking />} />
+        <Route path="/market-prices" element={<MarketPrices />} />
       </Routes>
       {showFooter && <Footer />}
     </Router>
@@ -67,7 +73,9 @@ function App() {
   return (
     <AuthProvider>
       <CartProvider>
-        <AppContent />
+        <RawMaterialsProvider>
+          <AppContent />
+        </RawMaterialsProvider>
       </CartProvider>
     </AuthProvider>
   );

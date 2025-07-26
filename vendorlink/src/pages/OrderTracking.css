@@ -1,0 +1,286 @@
+.order-tracking-page {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 20px;
+}
+
+.order-tracking-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.order-tracking-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.order-tracking-header h1 {
+  margin: 0 0 8px 0;
+  color: #2d3748;
+  font-size: 32px;
+  font-weight: 600;
+}
+
+.order-tracking-header p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 16px;
+}
+
+.order-tracking-content {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 30px;
+}
+
+.orders-list {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: fit-content;
+}
+
+.orders-list h2 {
+  margin: 0 0 20px 0;
+  color: #2d3748;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.order-card {
+  padding: 16px;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.order-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 2px 8px rgba(0,123,255,0.1);
+}
+
+.order-card.selected {
+  border-color: #007bff;
+  background: #f8f9ff;
+  box-shadow: 0 2px 8px rgba(0,123,255,0.2);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.order-info h3 {
+  margin: 0 0 4px 0;
+  color: #2d3748;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.order-date {
+  margin: 0;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-badge.large {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
+.order-summary p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.order-details {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.order-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.order-details-header h2 {
+  margin: 0;
+  color: #2d3748;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.order-items {
+  margin-bottom: 30px;
+}
+
+.order-items h3 {
+  margin: 0 0 16px 0;
+  color: #2d3748;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.order-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.order-item:last-child {
+  border-bottom: none;
+}
+
+.item-name {
+  color: #2d3748;
+  font-weight: 500;
+}
+
+.item-quantity {
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.item-price {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.order-total {
+  padding: 16px 0;
+  border-top: 2px solid #e9ecef;
+  margin-top: 16px;
+  text-align: right;
+  color: #2d3748;
+  font-size: 18px;
+}
+
+.tracking-timeline h3 {
+  margin: 0 0 20px 0;
+  color: #2d3748;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.timeline {
+  position: relative;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 20px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #e9ecef;
+}
+
+.timeline-step {
+  position: relative;
+  padding-left: 60px;
+  margin-bottom: 24px;
+}
+
+.timeline-marker {
+  position: absolute;
+  left: 11px;
+  top: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e9ecef;
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px #e9ecef;
+  transition: all 0.3s;
+}
+
+.timeline-step.completed .timeline-marker {
+  background: #28a745;
+  box-shadow: 0 0 0 2px #28a745;
+}
+
+.timeline-content h4 {
+  margin: 0 0 4px 0;
+  color: #2d3748;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.timeline-content p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 14px;
+}
+
+.timeline-step.completed .timeline-content h4 {
+  color: #28a745;
+}
+
+.no-order-selected {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.no-order-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+}
+
+.no-order-selected h3 {
+  margin: 0 0 12px 0;
+  color: #2d3748;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.no-order-selected p {
+  margin: 0;
+  color: #6c757d;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .order-tracking-content {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  
+  .order-tracking-header h1 {
+    font-size: 24px;
+  }
+  
+  .order-details-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .order-details-header h2 {
+    font-size: 20px;
+  }
+} 

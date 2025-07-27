@@ -25,9 +25,12 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function AppContent() {
-  const isHomePage = window.location.pathname === "/";
-  const isLoginPage = window.location.pathname === "/login";
-  const showNavbar = !isLoginPage;
+  const path = window.location.pathname;
+  const isHomePage = path === "/";
+  const isLoginPage = path === "/login";
+  const isVendorDashboard = path.startsWith("/vendor");
+
+  const showNavbar = !isLoginPage && !isVendorDashboard;
   const showFooter = isHomePage;
 
   return (
@@ -37,21 +40,30 @@ function AppContent() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/vendor-dashboard" element={
-          <ProtectedRoute>
-            <VendorDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/supplier-dashboard" element={
-          <ProtectedRoute>
-            <SupplierDashboard />
-          </ProtectedRoute>
-        } />
-        <Route path="/booking" element={
-          <ProtectedRoute>
-            <BookingPage />
-          </ProtectedRoute>
-        } />
+        <Route
+          path="/vendor-dashboard"
+          element={
+            <ProtectedRoute>
+              <VendorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/supplier-dashboard"
+          element={
+            <ProtectedRoute>
+              <SupplierDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/booking"
+          element={
+            <ProtectedRoute>
+              <BookingPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/dynamic-price" element={<DynamicPricePage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/track-orders" element={<OrderTracking />} />

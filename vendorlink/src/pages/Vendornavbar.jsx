@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import "./VendorNavbar.css"; // Use a dedicated CSS file for clarity
+import "./vendornavbar.css"; // Use a dedicated CSS file for clarity
 
 const VendorNavbar = () => {
   const { signOut } = useAuth();

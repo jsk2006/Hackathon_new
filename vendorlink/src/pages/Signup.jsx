@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
+import './login.css';
 
 const Signup = () => {
   const { signUp, loading } = useAuth();

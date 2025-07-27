@@ -2,7 +2,7 @@ import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import "./vendornavbar.css"; // Use a dedicated CSS file for clarity
+import "./vendornavbar.css";
 
 const VendorNavbar = () => {
   const { signOut } = useAuth();
@@ -11,16 +11,16 @@ const VendorNavbar = () => {
 
   const handleLogout = () => {
     signOut();
-    navigate("/"); // optional redirect after logout
+    navigate("/"); // Optional: Redirect to login/home after logout
   };
 
   return (
-    <nav className="vendor-navbar">
-      <div className="vendor-logo">
-        <Link to="/">Vendor Dashboard</Link>
+    <nav className="navbar vendor-navbar">
+      <div className="navbar-logo">
+        <Link to="/vendor-dashboard">Vendor Dashboard</Link>
       </div>
-      <ul className="vendor-links">
-        <li><Link to="/">Overview</Link></li>
+      <ul className="navbar-links">
+        <li><Link to="/vendor-dashboard">Overview</Link></li>
         <li><Link to="/dynamic-price">Products</Link></li>
         <li><Link to="/market-prices">Market Prices</Link></li>
         <li>
@@ -29,7 +29,11 @@ const VendorNavbar = () => {
           </Link>
         </li>
         <li><Link to="/track-orders">Track Orders</Link></li>
-        <li><button className="logout-btn" onClick={handleLogout}>Logout</button></li>
+        <li>
+          <button className="logout-btn" onClick={handleLogout}>
+            Logout
+          </button>
+        </li>
       </ul>
     </nav>
   );

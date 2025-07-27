@@ -49,3 +49,6 @@
   color: white;
   cursor: pointer;
 }
+.vendor-dashboard-container {
+  padding-top: 4.5rem; /* Adjust if your navbar height changes */
+}

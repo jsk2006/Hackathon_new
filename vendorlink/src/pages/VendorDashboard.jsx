@@ -1,14 +1,38 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
-import VendorNavbar from "./Vendornavbar"; // ✅ Correct import
 import "./VendorDashboard.css";
-import "./vendornavbar.css";
+
+const VendorNavbar = () => {
+  const { signOut } = useAuth();
+  const { getCartCount } = useCart();
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    signOut();
+  };
+  return (
+    <nav className="navbar vendor-navbar">
+      <div className="navbar-logo">
+        <Link to="/vendor-dashboard">Vendor Dashboard</Link>
+      </div>
+      <ul className="navbar-links">
+        <li><Link to="/vendor-dashboard">Overview</Link></li>
+        <li><Link to="/dynamic-price">Products</Link></li>
+        <li><Link to="/market-prices">Market Prices</Link></li>
+        <li><Link to="/cart">Cart {getCartCount() > 0 && <span className="cart-badge">{getCartCount()}</span>}</Link></li>
+        <li><Link to="/track-orders">Track Orders</Link></li>
+        <li><button className="logout-btn" onClick={handleLogout}>Logout</button></li>
+      </ul>
+    </nav>
+  );
+};
 
 const VendorDashboard = () => {
   const { items, getCartTotal, getCartCount } = useCart();
   const [activeTab, setActiveTab] = useState('overview');
 
+  // Dummy data for dashboard
   const recentOrders = [
     { id: "ORD001", date: "2024-01-15", status: "delivered", total: 450, items: 3 },
     { id: "ORD002", date: "2024-01-14", status: "in-transit", total: 320, items: 2 },
@@ -49,13 +73,22 @@ const VendorDashboard = () => {
       </div>
 
       <div className="dashboard-tabs">
-        <button className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`} onClick={() => setActiveTab('overview')}>
+        <button
+          className={`tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
+          onClick={() => setActiveTab('overview')}
+        >
           📊 Overview
         </button>
-        <button className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`} onClick={() => setActiveTab('orders')}>
+        <button
+          className={`tab-btn ${activeTab === 'orders' ? 'active' : ''}`}
+          onClick={() => setActiveTab('orders')}
+        >
           📦 Orders
         </button>
-        <button className={`tab-btn ${activeTab === 'cart' ? 'active' : ''}`} onClick={() => setActiveTab('cart')}>
+        <button
+          className={`tab-btn ${activeTab === 'cart' ? 'active' : ''}`}
+          onClick={() => setActiveTab('cart')}
+        >
           🛒 Cart ({getCartCount()})
         </button>
       </div>
@@ -79,7 +112,9 @@ const VendorDashboard = () => {
               <div className="recent-orders-section">
                 <div className="section-header">
                   <h2>Recent Orders</h2>
-                  <Link to="/track-orders" className="view-all-link">View All →</Link>
+                  <Link to="/track-orders" className="view-all-link">
+                    View All →
+                  </Link>
                 </div>
                 <div className="orders-list">
                   {recentOrders.map(order => (
@@ -91,7 +126,10 @@ const VendorDashboard = () => {
                       <div className="order-details">
                         <span className="order-items">{order.items} items</span>
                         <span className="order-total">₹{order.total}</span>
-                        <span className="order-status" style={{ backgroundColor: getStatusColor(order.status) }}>
+                        <span
+                          className="order-status"
+                          style={{ backgroundColor: getStatusColor(order.status) }}
+                        >
                           {getStatusText(order.status)}
                         </span>
                       </div>
@@ -103,10 +141,22 @@ const VendorDashboard = () => {
               <div className="quick-actions-section">
                 <h2>Quick Actions</h2>
                 <div className="quick-actions">
-                  <Link to="/dynamic-price" className="action-btn"><span className="action-icon">🛍️</span>Browse Products</Link>
-                  <Link to="/cart" className="action-btn"><span className="action-icon">🛒</span>View Cart</Link>
-                  <Link to="/track-orders" className="action-btn"><span className="action-icon">📦</span>Track Orders</Link>
-                  <Link to="/supplier" className="action-btn"><span className="action-icon">🏪</span>Supplier Dashboard</Link>
+                  <Link to="/dynamic-price" className="action-btn">
+                    <span className="action-icon">🛍️</span>
+                    Browse Products
+                  </Link>
+                  <Link to="/cart" className="action-btn">
+                    <span className="action-icon">🛒</span>
+                    View Cart
+                  </Link>
+                  <Link to="/track-orders" className="action-btn">
+                    <span className="action-icon">📦</span>
+                    Track Orders
+                  </Link>
+                  <Link to="/supplier" className="action-btn">
+                    <span className="action-icon">🏪</span>
+                    Supplier Dashboard
+                  </Link>
                 </div>
               </div>
             </div>
@@ -117,7 +167,9 @@ const VendorDashboard = () => {
           <div className="orders-tab">
             <div className="tab-header">
               <h2>Order History</h2>
-              <Link to="/track-orders" className="btn-primary">Track Orders</Link>
+              <Link to="/track-orders" className="btn-primary">
+                Track Orders
+              </Link>
             </div>
             <div className="orders-table">
               <div className="table-header">
@@ -133,7 +185,10 @@ const VendorDashboard = () => {
                   <span>{new Date(order.date).toLocaleDateString()}</span>
                   <span>{order.items} items</span>
                   <span>₹{order.total}</span>
-                  <span className="status-badge" style={{ backgroundColor: getStatusColor(order.status) }}>
+                  <span
+                    className="status-badge"
+                    style={{ backgroundColor: getStatusColor(order.status) }}
+                  >
                     {getStatusText(order.status)}
                   </span>
                 </div>
@@ -146,7 +201,9 @@ const VendorDashboard = () => {
           <div className="cart-tab">
             <div className="tab-header">
               <h2>Shopping Cart</h2>
-              <Link to="/cart" className="btn-primary">View Full Cart</Link>
+              <Link to="/cart" className="btn-primary">
+                View Full Cart
+              </Link>
             </div>
             {items.length > 0 ? (
               <div className="cart-preview">
@@ -174,7 +231,9 @@ const VendorDashboard = () => {
                     <span>Total:</span>
                     <span>₹{getCartTotal()}</span>
                   </div>
-                  <Link to="/cart" className="btn-checkout">Proceed to Checkout</Link>
+                  <Link to="/cart" className="btn-checkout">
+                    Proceed to Checkout
+                  </Link>
                 </div>
               </div>
             ) : (
@@ -182,13 +241,14 @@ const VendorDashboard = () => {
                 <div className="empty-cart-icon">🛒</div>
                 <h3>Your cart is empty</h3>
                 <p>Start shopping to add items to your cart</p>
-                <Link to="/dynamic-price" className="btn-primary">Browse Products</Link>
+                <Link to="/dynamic-price" className="btn-primary">
+                  Browse Products
+                </Link>
               </div>
             )}
           </div>
         )}
       </div>
-
       <Link to="/booking">Go to Booking System</Link>
     </div>
   );

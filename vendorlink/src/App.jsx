@@ -28,9 +28,9 @@ function AppContent() {
   const path = window.location.pathname;
   const isHomePage = path === "/";
   const isLoginPage = path === "/login";
-  const isVendorDashboard = path.startsWith("/vendor");
+  const isDashboardPage = path.includes("dashboard");
 
-  const showNavbar = !isLoginPage && !isVendorDashboard;
+  const showNavbar = !isLoginPage && !isDashboardPage;
   const showFooter = isHomePage;
 
   return (
@@ -73,6 +73,7 @@ function AppContent() {
     </>
   );
 }
+
 
 function App() {
   return (

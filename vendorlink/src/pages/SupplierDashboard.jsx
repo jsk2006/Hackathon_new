@@ -1,7 +1,30 @@
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useRawMaterials } from "../context/RawMaterialsContext";
+import { Link, useNavigate } from 'react-router-dom';
 import "./SupplierDashboard.css";
+
+const SupplierNavbar = () => {
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    signOut();
+  };
+  return (
+    <nav className="navbar supplier-navbar">
+      <div className="navbar-logo">
+        <Link to="/supplier-dashboard">Supplier Dashboard</Link>
+      </div>
+      <ul className="navbar-links">
+        <li><Link to="/supplier-dashboard">Overview</Link></li>
+        <li><Link to="/inventory">Inventory</Link></li>
+        <li><Link to="/market-prices">Market Prices</Link></li>
+        <li><Link to="/track-orders">Track Orders</Link></li>
+        <li><button className="logout-btn" onClick={handleLogout}>Logout</button></li>
+      </ul>
+    </nav>
+  );
+};
 
 const SupplierDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -129,43 +152,7 @@ const SupplierDashboard = () => {
         Debug: User={user?.username || 'None'}, Role={role || 'None'}
       </div>
       
-      <div className="dashboard-header">
-        <h1>Supplier Dashboard</h1>
-        <p>Welcome back, {user?.username || "Supplier"}! Manage your products and orders.</p>
-      </div>
-
-      <div className="dashboard-tabs">
-        <button
-          className={`tab-btn ${activeTab === "overview" ? "active" : ""}`}
-          onClick={() => setActiveTab("overview")}
-        >
-          Overview
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "products" ? "active" : ""}`}
-          onClick={() => setActiveTab("products")}
-        >
-          Products
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "orders" ? "active" : ""}`}
-          onClick={() => setActiveTab("orders")}
-        >
-          Orders
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "inventory" ? "active" : ""}`}
-          onClick={() => setActiveTab("inventory")}
-        >
-          Inventory
-        </button>
-        <button
-          className={`tab-btn ${activeTab === "market" ? "active" : ""}`}
-          onClick={() => setActiveTab("market")}
-        >
-          Market Prices
-        </button>
-      </div>
+      <SupplierNavbar />
 
       <div className="dashboard-content">
         {activeTab === "overview" && (
@@ -500,6 +487,7 @@ const SupplierDashboard = () => {
           </div>
         </div>
       )}
+      <Link to="/booking">Go to Booking System</Link>
     </div>
   );
 };

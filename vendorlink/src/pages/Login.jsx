@@ -1,175 +1,69 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import "./Login.css";
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
+import './Login.css'; // Make sure this import path is correct
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: ""
-  });
-  const [error, setError] = useState("");
-  const [showRoleSelection, setShowRoleSelection] = useState(false);
-  const [selectedRole, setSelectedRole] = useState("");
-  
-  const { login, selectRole } = useAuth();
-  const navigate = useNavigate();
+  const { signIn, signInWithGoogle, signInWithPhone, verifyPhoneOtp, loading } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [phone, setPhone] = useState('');
+  const [otp, setOtp] = useState('');
+  const [showOtp, setShowOtp] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleInputChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleLogin = (e) => {
+  const handleEmailLogin = async (e) => {
     e.preventDefault();
-    setError("");
-    
-    console.log("Attempting login with:", formData);
-    const result = login(formData.username, formData.password);
-    console.log("Login result:", result);
-    
-    if (result.success) {
-      if (result.needsRole) {
-        setShowRoleSelection(true);
-      } else {
-        // User has only one role, redirect directly
-        console.log("Redirecting to vendor dashboard");
-        navigate("/vendor");
-      }
-    } else {
-      setError("Invalid username or password");
-    }
+    setError('');
+    const { error } = await signIn(email, password);
+    if (error) setError(error.message);
   };
 
-  const handleRoleSelection = (role) => {
-    console.log("Role selected:", role);
-    setSelectedRole(role);
-    selectRole(role);
-    
-    // Redirect based on role
-    if (role === "vendor") {
-      console.log("Redirecting to vendor dashboard");
-      navigate("/vendor");
-    } else if (role === "supplier") {
-      console.log("Redirecting to supplier dashboard");
-      navigate("/supplier");
-    }
+  const handleGoogleLogin = async () => {
+    setError('');
+    const { error } = await signInWithGoogle();
+    if (error) setError(error.message);
   };
 
-  const demoLogin = (username) => {
-    setFormData({ username, password: "demo123" });
-    const result = login(username, "demo123");
-    
-    if (result.success) {
-      if (result.needsRole) {
-        setShowRoleSelection(true);
-      } else {
-        navigate("/vendor");
-      }
-    }
+  const handlePhoneLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+    const { error } = await signInWithPhone(phone);
+    if (error) setError(error.message);
+    else setShowOtp(true);
+  };
+
+  const handleVerifyOtp = async (e) => {
+    e.preventDefault();
+    setError('');
+    const { error } = await verifyPhoneOtp(phone, otp);
+    if (error) setError(error.message);
   };
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-header">
-          <h1>Welcome to VendorLink</h1>
-          <p>Your trusted platform for vendor management</p>
-        </div>
+      <h2>Login</h2>
 
-        {!showRoleSelection ? (
-          <form onSubmit={handleLogin} className="login-form">
-            <div className="form-group">
-              <label htmlFor="username">Username</label>
-              <input
-                type="text"
-                id="username"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                placeholder="Enter your username"
-                required
-              />
-            </div>
+      <form className="login-form" onSubmit={handleEmailLogin}>
+        <input className="form-input" type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required />
+        <input className="form-input" type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} required />
+        <button className="login-btn" type="submit" disabled={loading}>Login with Email</button>
+      </form>
 
-            <div className="form-group">
-              <label htmlFor="password">Password</label>
-              <input
-                type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="Enter your password"
-                required
-              />
-            </div>
+      <button className="login-btn" onClick={handleGoogleLogin} disabled={loading}>Login with Google</button>
 
-            {error && <div className="error-message">{error}</div>}
-
-            <button type="submit" className="login-btn">
-              Login
-            </button>
-
-            <div className="demo-accounts">
-              <h3>Demo Accounts</h3>
-              <div className="demo-buttons">
-                <button
-                  type="button"
-                  className="demo-btn vendor"
-                  onClick={() => demoLogin("vendor")}
-                >
-                  🛒 Vendor Demo
-                </button>
-                <button
-                  type="button"
-                  className="demo-btn supplier"
-                  onClick={() => demoLogin("supplier")}
-                >
-                  🚚 Supplier Demo
-                </button>
-                <button
-                  type="button"
-                  className="demo-btn both"
-                  onClick={() => demoLogin("both")}
-                >
-                  🔄 Both Roles Demo
-                </button>
-              </div>
-            </div>
-          </form>
-        ) : (
-          <div className="role-selection">
-            <h2>Select Your Role</h2>
-            <p>Choose how you want to use the platform:</p>
-            
-            <div className="role-options">
-              <button
-                className={`role-btn vendor ${selectedRole === "vendor" ? "selected" : ""}`}
-                onClick={() => handleRoleSelection("vendor")}
-              >
-                <span className="role-icon">🛒</span>
-                <div className="role-info">
-                  <h3>Vendor</h3>
-                  <p>Manage orders, track inventory, view analytics</p>
-                </div>
-              </button>
-              
-              <button
-                className={`role-btn supplier ${selectedRole === "supplier" ? "selected" : ""}`}
-                onClick={() => handleRoleSelection("supplier")}
-              >
-                <span className="role-icon">🚚</span>
-                <div className="role-info">
-                  <h3>Supplier</h3>
-                  <p>Upload products, manage inventory, view orders</p>
-                </div>
-              </button>
-            </div>
-          </div>
+      <form className="login-form" onSubmit={showOtp ? handleVerifyOtp : handlePhoneLogin}>
+        <input className="form-input" type="tel" placeholder="Phone (+91...)" value={phone} onChange={e => setPhone(e.target.value)} required />
+        {showOtp && (
+          <input className="form-input" type="text" placeholder="OTP" value={otp} onChange={e => setOtp(e.target.value)} required />
         )}
+        <button className="login-btn" type="submit" disabled={loading}>{showOtp ? 'Verify OTP' : 'Send OTP'}</button>
+      </form>
+
+      {error && <div className="error-message">{error}</div>}
+
+      <div className="signup-text">
+        Don't have an account? <Link to="/signup">Sign up</Link>
       </div>
     </div>
   );

@@ -1,54 +1,80 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { supabase } from '../supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
-const mockUsers = [
-  { username: 'vendor', password: 'demo123', roles: ['vendor'] },
-  { username: 'supplier', password: 'demo123', roles: ['supplier'] },
-  { username: 'both', password: 'demo123', roles: ['vendor', 'supplier'] },
-];
-
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem('user'));
-    const storedRole = localStorage.getItem('role');
-    if (storedUser) setUser(storedUser);
-    if (storedRole) setRole(storedRole);
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+    getSession();
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, []);
 
-  useEffect(() => {
-    if (user) localStorage.setItem('user', JSON.stringify(user));
-    else localStorage.removeItem('user');
-    if (role) localStorage.setItem('role', role);
-    else localStorage.removeItem('role');
-  }, [user, role]);
-
-  const login = (username, password) => {
-    const found = mockUsers.find(u => u.username === username && u.password === password);
-    if (found) {
-      setUser({ username: found.username, roles: found.roles });
-      setRole(found.roles.length === 1 ? found.roles[0] : null);
-      return { success: true, needsRole: found.roles.length > 1 };
-    }
-    return { success: false };
+  // Email/password signup with user type
+  const signUp = async (email, password, userType) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { user_type: userType } },
+    });
+    return { data, error };
   };
 
-  const selectRole = (selectedRole) => {
-    setRole(selectedRole);
+  // Email/password login
+  const signIn = async (email, password) => {
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    return { data, error };
   };
 
-  const logout = () => {
+  // Google OAuth
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+    return { data, error };
+  };
+
+  // Phone OTP
+  const signInWithPhone = async (phone) => {
+    const { data, error } = await supabase.auth.signInWithOtp({ phone });
+    return { data, error };
+  };
+  const verifyPhoneOtp = async (phone, token) => {
+    const { data, error } = await supabase.auth.verifyOtp({ phone, token, type: 'sms' });
+    return { data, error };
+  };
+
+  // Logout
+  const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    setRole(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('role');
+    navigate('/login');
   };
+
+  // Redirect after login
+  useEffect(() => {
+    if (user) {
+      const userType = user.user_metadata?.user_type;
+      if (userType === 'vendor') navigate('/vendor-dashboard');
+      else if (userType === 'supplier') navigate('/supplier-dashboard');
+    }
+  }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, role, login, logout, selectRole }}>
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, signInWithGoogle, signInWithPhone, verifyPhoneOtp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

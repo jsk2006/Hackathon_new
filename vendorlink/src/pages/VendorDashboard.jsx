@@ -1,6 +1,6 @@
 // src/pages/VendorDashboard.jsx
 import React from "react";
-import VendorNavbar from "../components/Vendornavbar";
+import VendorNavbar from "./Vendornavbar";
 import "./VendorDashboard.css";
 
 const VendorDashboard = () => {
